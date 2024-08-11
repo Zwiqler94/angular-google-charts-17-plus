@@ -45,17 +45,21 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
             "aot": true,
-            "outputPath": "dist/playground",
+            "outputPath": {
+              "base": "dist/playground"
+            },
             "index": "apps/playground/src/index.html",
-            "main": "apps/playground/src/main.ts",
-            "polyfills": "apps/playground/src/polyfills.ts",
+            "polyfills": [
+              "apps/playground/src/polyfills.ts"
+            ],
             "tsConfig": "apps/playground/tsconfig.app.json",
             "assets": ["apps/playground/src/favicon.ico", "apps/playground/src/assets"],
             "styles": ["apps/playground/src/styles.scss"],
-            "scripts": []
+            "scripts": [],
+            "browser": "apps/playground/src/main.ts"
           },
           "configurations": {
             "production": {
@@ -71,8 +75,6 @@
               "namedChunks": true,
               "aot": true,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
