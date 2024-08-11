@@ -12,7 +12,7 @@
       "root": "libs/angular-google-charts",
       "sourceRoot": "libs/angular-google-charts/src",
       "projectType": "library",
-      "prefix": "lib",
+      "prefix": "chart",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",

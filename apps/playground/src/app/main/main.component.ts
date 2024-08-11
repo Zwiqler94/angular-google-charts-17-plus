@@ -13,7 +13,8 @@ import {
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
-  styles: [':host > *:not(h1) { display: inline-block !important; }']
+  styles: [':host > *:not(h1) { display: inline-block !important; }'],
+  standalone: true
 })
 export class MainComponent implements OnInit {
   public charts: {
@@ -286,15 +287,15 @@ export class MainComponent implements OnInit {
   }
 
   public onSelect(event: ChartSelectionChangedEvent) {
-    console.log('Selected: ' + event.toString());
+    console.log('Selected: ' + JSON.stringify(event));
   }
 
   public onMouseEnter(event: ChartMouseOverEvent) {
-    console.log('Hovering ' + event.toString());
+    console.log('Hovering ' + JSON.stringify(event));
   }
 
   public onMouseLeave(event: ChartMouseLeaveEvent) {
-    console.log('No longer hovering ' + event.toString());
+    console.log('No longer hovering ' + JSON.stringify(event));
   }
 
   public ngOnInit() {

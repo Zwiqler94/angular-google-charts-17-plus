@@ -1,7 +1,7 @@
 {
   "name": "angular-google-charts",
   "description": "A wrapper for the Google Charts library written in Angular",
-  "version": "0.0.0",
+  "version": "18.0.0",
   "private": false,
   "scripts": {
     "ng": "ng",
@@ -50,11 +50,10 @@
     "@types/eslint": "~9.6.0",
     "@types/eslint-config-prettier": "~6.11.3",
     "@types/lint-staged": "~13.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
-    "eslint": "^9.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.0.1",
+    "eslint": "^9.9.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react": "^7.35.0",
     "husky": "^9.1.4",
     "lint-staged": "^15.2.8",
@@ -62,6 +61,6 @@
   },
   "dependencies": {
     "ng-packagr": "^18.1.0",
-    "typescript": "^5.4"
+    "typescript": "^5.5"
   }
 }
