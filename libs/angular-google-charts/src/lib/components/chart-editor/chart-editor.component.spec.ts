@@ -87,10 +87,10 @@ describe('ChartEditorComponent', () => {
     const chartComponent = {} as ChartBase;
 
     beforeEach(() => {
-      Object.defineProperty(chartComponent, 'chartWrapper', { get: () => chartWrapper });
+      Object.assign(chartComponent, 'chartWrapper', { get: () => chartWrapper });
 
       component['editor'] = editorMock;
-      ((ChartEditorRef as any) as jest.SpyInstance).mockReturnValue(editorRefMock);
+      (ChartEditorRef as any as jest.SpyInstance).mockReturnValue(editorRefMock);
       editorRefMock.afterClosed.mockReturnValue(EMPTY);
     });
 
@@ -119,7 +119,7 @@ describe('ChartEditorComponent', () => {
 
     it('should update the components chart wrapper with the edit result', () => {
       const setSpy = jest.fn();
-      Object.defineProperty(chartComponent, 'chartWrapper', { get: () => chartWrapper, set: setSpy });
+      Object.assign(chartComponent, 'chartWrapper', { get: () => chartWrapper, set: setSpy });
 
       const updatedWrapper = { draw: jest.fn() };
       editorRefMock.afterClosed.mockReturnValue(of(updatedWrapper));
@@ -131,7 +131,7 @@ describe('ChartEditorComponent', () => {
 
     it('should not update the components wrapper if editing was cancelled', () => {
       const setSpy = jest.fn();
-      Object.defineProperty(chartComponent, 'chartWrapper', { get: () => chartWrapper, set: setSpy });
+      Object.assign(chartComponent, 'chartWrapper', { get: () => chartWrapper, set: setSpy });
 
       editorRefMock.afterClosed.mockReturnValue(of(null));
 
