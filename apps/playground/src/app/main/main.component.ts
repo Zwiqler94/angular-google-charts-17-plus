@@ -2,8 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   ChartErrorEvent,
-  ChartMouseLeaveEvent,
-  ChartMouseOverEvent,
   ChartSelectionChangedEvent,
   ChartType,
   Column,
@@ -14,7 +12,8 @@ import {
   selector: 'app-main',
   templateUrl: './main.component.html',
   styles: [':host > *:not(h1) { display: inline-block !important; }'],
-  standalone: true
+  standalone: true,
+  imports: [GoogleChartComponent]
 })
 export class MainComponent implements OnInit {
   public charts: {
@@ -22,7 +21,7 @@ export class MainComponent implements OnInit {
     type: ChartType;
     data: any[][];
     columns?: Column[];
-    options?: {};
+    options?: any;
   }[] = [];
 
   public changingChart = {
@@ -290,11 +289,11 @@ export class MainComponent implements OnInit {
     console.log('Selected: ' + JSON.stringify(event));
   }
 
-  public onMouseEnter(event: ChartMouseOverEvent) {
+  public onMouseEnter(event: any) {
     console.log('Hovering ' + JSON.stringify(event));
   }
 
-  public onMouseLeave(event: ChartMouseLeaveEvent) {
+  public onMouseLeave(event: any) {
     console.log('No longer hovering ' + JSON.stringify(event));
   }
 

@@ -2,7 +2,7 @@
 @for (chart of charts; track chart) {
   <div>
     <google-chart
-      width="600"
+      [width]="600"
       [title]="chart.title"
       [type]="chart.type"
       [data]="chart.data"
@@ -20,7 +20,7 @@
 
 <google-chart
   #chart
-  width="600"
+  [width]="600"
   [title]="changingChart.title"
   [type]="changingChart.type"
   [data]="changingChart.data"

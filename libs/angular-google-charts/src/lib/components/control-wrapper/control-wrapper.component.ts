@@ -16,7 +16,6 @@ import { ScriptLoaderService } from '../../services/script-loader.service';
 import { FilterType } from '../../types/control-type';
 import { ChartErrorEvent, ChartReadyEvent } from '../../types/events';
 import { ChartBase } from '../chart-base/chart-base.component';
-import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'control-wrapper',

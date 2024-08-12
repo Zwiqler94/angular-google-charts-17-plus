@@ -4,11 +4,8 @@ import {
   ChartBase,
   ChartEditorComponent,
   ChartType,
-  ControlWrapperComponent,
-  DashboardComponent,
   FilterType,
   Formatter,
-  GoogleChartComponent,
   GoogleChartsModule,
   ScriptLoaderService
 } from 'angular-google-charts';
