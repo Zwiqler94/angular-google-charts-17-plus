@@ -22,7 +22,8 @@ import { ChartBase } from '../chart-base/chart-base.component';
   template: '',
   host: { class: 'control-wrapper' },
   exportAs: 'controlWrapper',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true
 })
 export class ControlWrapperComponent implements OnInit, OnChanges {
   /**

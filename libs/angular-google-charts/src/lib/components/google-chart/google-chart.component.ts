@@ -30,12 +30,13 @@ import { ChartBase, Column, Row } from '../chart-base/chart-base.component';
 import { DashboardComponent } from '../dashboard/dashboard.component';
 
 @Component({
-  selector: 'google-chart',
-  template: '',
-  styles: [':host { width: fit-content; display: block; }'],
-  host: { class: 'google-chart' },
-  exportAs: 'googleChart',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'google-chart',
+    template: '',
+    styles: [':host { width: fit-content; display: block; }'],
+    host: { class: 'google-chart' },
+    exportAs: 'googleChart',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true
 })
 export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDestroy {
   /**

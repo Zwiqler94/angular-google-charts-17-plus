@@ -31,7 +31,7 @@ export interface ChartMouseOverEvent {
   row: number;
 }
 
-export interface ChartMouseLeaveEvent {
+export interface ChartMouseLeaveEvent extends MouseEvent {
   column: number;
   row: number;
 }

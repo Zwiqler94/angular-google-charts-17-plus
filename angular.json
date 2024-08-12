@@ -12,7 +12,7 @@
       "root": "libs/angular-google-charts",
       "sourceRoot": "libs/angular-google-charts/src",
       "projectType": "library",
-      "prefix": "lib",
+      "prefix": "chart",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
@@ -45,17 +45,19 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
             "aot": true,
-            "outputPath": "dist/playground",
+            "outputPath": {
+              "base": "dist/playground"
+            },
             "index": "apps/playground/src/index.html",
-            "main": "apps/playground/src/main.ts",
-            "polyfills": "apps/playground/src/polyfills.ts",
+            "polyfills": ["apps/playground/src/polyfills.ts"],
             "tsConfig": "apps/playground/tsconfig.app.json",
             "assets": ["apps/playground/src/favicon.ico", "apps/playground/src/assets"],
             "styles": ["apps/playground/src/styles.scss"],
-            "scripts": []
+            "scripts": [],
+            "browser": "apps/playground/src/main.ts"
           },
           "configurations": {
             "production": {
@@ -68,11 +70,34 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
+              "namedChunks": true,
               "aot": true,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ]
+            },
+            "development": {
+              "fileReplacements": [
+                {
+                  "replace": "apps/playground/src/environments/environment.ts",
+                  "with": "apps/playground/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": true,
+              "namedChunks": true,
+              "aot": true,
+              "extractLicenses": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -85,7 +110,8 @@
                 }
               ]
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -94,6 +120,9 @@
           },
           "configurations": {
             "production": {
+              "buildTarget": "playground:build:production"
+            },
+            "development": {
               "buildTarget": "playground:build:production"
             }
           }

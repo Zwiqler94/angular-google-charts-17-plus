@@ -1,4 +1,4 @@
-import { Location } from '@angular/common';
+import { AsyncPipe, Location } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import {
   ChartBase,
@@ -6,6 +6,7 @@ import {
   ChartType,
   FilterType,
   Formatter,
+  GoogleChartsModule,
   ScriptLoaderService
 } from 'angular-google-charts';
 import { Observable } from 'rxjs';
@@ -14,7 +15,9 @@ import { map, share } from 'rxjs/operators';
 @Component({
   selector: 'app-test',
   templateUrl: './test.component.html',
-  styles: ['.inline > * { display: inline-block; vertical-align: top; }']
+  styles: ['.inline > * { display: inline-block; vertical-align: top; }'],
+  standalone: true,
+  imports: [GoogleChartsModule, AsyncPipe]
 })
 export class TestComponent {
   public chart = {
@@ -71,8 +74,13 @@ export class TestComponent {
 
   @ViewChild(ChartEditorComponent)
   public readonly editor!: ChartEditorComponent;
+  BarChart: ChartType = ChartType.BarChart;
+  PieChart: ChartType = ChartType.PieChart;
 
-  constructor(private location: Location, private scriptLoaderService: ScriptLoaderService) { }
+  constructor(
+    private location: Location,
+    private scriptLoaderService: ScriptLoaderService
+  ) {}
 
   public edit(chart: ChartBase) {
     this.editor

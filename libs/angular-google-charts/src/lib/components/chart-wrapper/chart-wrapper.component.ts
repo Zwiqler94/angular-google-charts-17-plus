@@ -16,12 +16,13 @@ import { ChartErrorEvent, ChartReadyEvent, ChartSelectionChangedEvent } from '..
 import { ChartBase } from '../chart-base/chart-base.component';
 
 @Component({
-  selector: 'chart-wrapper',
-  template: '',
-  styles: [':host { width: fit-content; display: block; }'],
-  host: { class: 'chart-wrapper' },
-  exportAs: 'chartWrapper',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'chart-wrapper',
+    template: '',
+    styles: [':host { width: fit-content; display: block; }'],
+    host: { class: 'chart-wrapper' },
+    exportAs: 'chartWrapper',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true
 })
 export class ChartWrapperComponent implements ChartBase, OnChanges, OnInit {
   /**

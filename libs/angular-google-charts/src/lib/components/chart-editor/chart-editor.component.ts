@@ -9,10 +9,11 @@ import { ChartBase } from '../chart-base/chart-base.component';
 import { ChartEditorRef } from './chart-editor-ref';
 
 @Component({
-  selector: 'chart-editor',
-  template: `<ng-content></ng-content>`,
-  host: { class: 'chart-editor' },
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'chart-editor',
+    template: `<ng-content></ng-content>`,
+    host: { class: 'chart-editor' },
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true
 })
 export class ChartEditorComponent implements OnInit {
   private editor: google.visualization.ChartEditor | undefined;

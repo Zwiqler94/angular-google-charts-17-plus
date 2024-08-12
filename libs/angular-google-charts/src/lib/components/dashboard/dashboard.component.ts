@@ -21,11 +21,12 @@ import { Column, Row } from '../chart-base/chart-base.component';
 import { ControlWrapperComponent } from '../control-wrapper/control-wrapper.component';
 
 @Component({
-  selector: 'dashboard',
-  template: '<ng-content></ng-content>',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  exportAs: 'dashboard',
-  host: { class: 'dashboard' }
+    selector: 'dashboard',
+    template: '<ng-content></ng-content>',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    exportAs: 'dashboard',
+    host: { class: 'dashboard' },
+    standalone: true
 })
 export class DashboardComponent implements OnInit, OnChanges {
   /**
