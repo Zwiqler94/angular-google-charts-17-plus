@@ -1,6 +1,6 @@
 {
   "name": "angular-google-charts",
-  "version": "3.0.0",
+  "version": "18.0.0",
   "description": "A wrapper for the Google Charts library written with Angular",
   "keywords": [
     "Angular",
@@ -9,19 +9,17 @@
     "Google",
     "Chart"
   ],
-  "homepage": "https://github.com/FERNman/angular-google-charts",
+  "homepage": "https://github.com/zwiqler45/angular-google-charts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/FERNman/angular-google-charts"
+    "url": "https://github.com/zwiqler45/angular-google-charts"
   },
   "bugs": {
-    "url": "https://github.com/FERNman/angular-google-charts",
-    "email": "gabriel.sperrer@gmail.com"
+    "url": "https://github.com/zwiqler45/angular-google-charts"
   },
   "license": "MIT",
   "author": {
-    "name": "Gabriel Sperrer",
-    "email": "gabriel.sperrer@gmail.com"
+    "name": "Jake Zwickler"
   },
   "dependencies": {
     "@types/google.visualization": "0.0.74",
