@@ -37,13 +37,14 @@ describe('ChartWrapperComponent', () => {
   let fixture: ComponentFixture<ChartWrapperComponent>;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     visualizationMock.ChartWrapper.mockReturnValue(chartWrapperMock);
     globalThis.google = { visualization: visualizationMock } as any;
   });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ChartWrapperComponent],
+      imports: [ChartWrapperComponent],
       providers: [ScriptLoaderService]
     }).compileComponents();
   });
@@ -74,7 +75,7 @@ describe('ChartWrapperComponent', () => {
       scriptLoaderService.loadChartPackages.mockReturnValue(of(null));
 
       const specs = { chartType: ChartType.AreaChart, dataTable: [] };
-      component.specs = specs;
+      setInput('specs', specs);
       component.ngOnInit();
 
       expect(visualizationMock.ChartWrapper).toHaveBeenCalledWith(expect.objectContaining(specs));
@@ -83,7 +84,7 @@ describe('ChartWrapperComponent', () => {
     it('should not throw if the specs are `null`', () => {
       const scriptLoaderService = TestBed.inject(ScriptLoaderService) as jest.Mocked<ScriptLoaderService>;
       scriptLoaderService.loadChartPackages.mockReturnValue(of(null));
-      component.specs = undefined;
+      setInput('specs', undefined);
 
       expect(() => component.ngOnInit()).not.toThrow();
     });
@@ -97,7 +98,7 @@ describe('ChartWrapperComponent', () => {
         container: { innerHTML: '' } as HTMLElement,
         containerId: 'test'
       };
-      component.specs = specs;
+      setInput('specs', specs);
       component.ngOnInit();
 
       expect(visualizationMock.ChartWrapper).not.toHaveBeenCalledWith(
@@ -112,7 +113,7 @@ describe('ChartWrapperComponent', () => {
       const scriptLoaderService = TestBed.inject(ScriptLoaderService) as jest.Mocked<ScriptLoaderService>;
       scriptLoaderService.loadChartPackages.mockReturnValue(of(null));
 
-      component.specs = { chartType: ChartType.AreaChart };
+      setInput('specs', { chartType: ChartType.AreaChart });
 
       component.ngOnInit();
 
@@ -138,7 +139,7 @@ describe('ChartWrapperComponent', () => {
       const scriptLoaderService = TestBed.inject(ScriptLoaderService) as jest.Mocked<ScriptLoaderService>;
       scriptLoaderService.loadChartPackages.mockReturnValue(of(null));
 
-      component.specs = { chartType: ChartType.AreaChart };
+      setInput('specs', { chartType: ChartType.AreaChart });
 
       const readySpy = jest.fn();
       component.wrapperReady$.subscribe(event => readySpy(event));
@@ -152,7 +153,7 @@ describe('ChartWrapperComponent', () => {
       const scriptLoaderService = TestBed.inject(ScriptLoaderService) as jest.Mocked<ScriptLoaderService>;
       scriptLoaderService.loadChartPackages.mockReturnValue(of(null));
 
-      component.specs = { chartType: ChartType.AreaChart };
+      setInput('specs', { chartType: ChartType.AreaChart });
 
       component.ngOnInit();
 
@@ -201,7 +202,7 @@ describe('ChartWrapperComponent', () => {
 
     it('should ignore `container` and `containerId` if given', () => {
       const specs = { containerId: 'test', container: {} } as google.visualization.ChartSpecs;
-      component.specs = specs;
+      setInput('specs', specs);
 
       expect(chartWrapperMock.setContainerId).not.toHaveBeenCalled();
     });
@@ -214,7 +215,7 @@ describe('ChartWrapperComponent', () => {
 
     it('should redraw the chart if the specs change', () => {
       const specs = { chartType: ChartType.AreaChart } as google.visualization.ChartSpecs;
-      component.specs = specs;
+      setInput('specs', specs);
 
       const newSpecs = { ...specs, chartType: ChartType.GeoChart };
       changeSpecs(newSpecs);
@@ -224,7 +225,7 @@ describe('ChartWrapperComponent', () => {
 
     it("should not redraw the chart if the specs didn't change", () => {
       const specs = { chartType: ChartType.AreaChart } as google.visualization.ChartSpecs;
-      component.specs = specs;
+      setInput('specs', specs);
 
       component.ngOnChanges({});
 
@@ -315,8 +316,12 @@ describe('ChartWrapperComponent', () => {
   });
 
   function changeSpecs(newValue?: google.visualization.ChartSpecs) {
-    const oldValue = component.specs;
-    component.specs = newValue;
+    const oldValue = component.specs();
+    setInput('specs', newValue);
     component.ngOnChanges({ specs: new SimpleChange(oldValue, newValue, oldValue == null) });
+  }
+
+  function setInput(name: 'specs', value: google.visualization.ChartSpecs | undefined) {
+    fixture.componentRef.setInput(name, value);
   }
 });

@@ -1,6 +1,6 @@
 /// <reference path="./types.ts" />
 
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 
 import { ScriptLoaderService } from '../../services/script-loader.service';
@@ -9,17 +9,22 @@ import { ChartBase } from '../chart-base/chart-base.component';
 import { ChartEditorRef } from './chart-editor-ref';
 
 @Component({
-    selector: 'chart-editor',
-    template: `<ng-content></ng-content>`,
-    host: { class: 'chart-editor' },
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true
+  selector: 'chart-editor',
+  template: `<ng-content />`,
+  host: { class: 'chart-editor' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true
 })
 export class ChartEditorComponent implements OnInit {
+  private scriptLoaderService = inject(ScriptLoaderService);
+
   private editor: google.visualization.ChartEditor | undefined;
   private initializedSubject = new Subject<google.visualization.ChartEditor>();
 
-  constructor(private scriptLoaderService: ScriptLoaderService) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   /**
    * Emits as soon as the chart editor is fully initialized.

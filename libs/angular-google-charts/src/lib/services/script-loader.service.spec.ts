@@ -22,6 +22,10 @@ describe('ScriptLoaderService', () => {
     (globalThis as any).google = undefined;
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('isGoogleChartsAvailable', () => {
     it('should be false if `google` is not available', () => {
       expect(service.isGoogleChartsAvailable()).toBeFalsy();

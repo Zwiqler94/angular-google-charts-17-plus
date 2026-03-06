@@ -2,6 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/spec",
+    "module": "node16",
+    "moduleResolution": "node16",
+    "isolatedModules": true,
     "types": ["jest", "node", "google.visualization"]
   },
   "include": ["**/*.spec.ts", "**/*.d.ts"]

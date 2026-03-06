@@ -36,7 +36,7 @@ describe('ChartEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ChartEditorComponent],
+      imports: [ChartEditorComponent],
       providers: [ScriptLoaderService]
     }).compileComponents();
   });
@@ -87,7 +87,10 @@ describe('ChartEditorComponent', () => {
     const chartComponent = {} as ChartBase;
 
     beforeEach(() => {
-      Object.assign(chartComponent, 'chartWrapper', { get: () => chartWrapper });
+      Object.defineProperty(chartComponent, 'chartWrapper', {
+        configurable: true,
+        get: () => chartWrapper
+      });
 
       component['editor'] = editorMock;
       (ChartEditorRef as any as jest.SpyInstance).mockReturnValue(editorRefMock);
@@ -119,7 +122,11 @@ describe('ChartEditorComponent', () => {
 
     it('should update the components chart wrapper with the edit result', () => {
       const setSpy = jest.fn();
-      Object.assign(chartComponent, 'chartWrapper', { get: () => chartWrapper, set: setSpy });
+      Object.defineProperty(chartComponent, 'chartWrapper', {
+        configurable: true,
+        get: () => chartWrapper,
+        set: setSpy
+      });
 
       const updatedWrapper = { draw: jest.fn() };
       editorRefMock.afterClosed.mockReturnValue(of(updatedWrapper));
@@ -131,7 +138,11 @@ describe('ChartEditorComponent', () => {
 
     it('should not update the components wrapper if editing was cancelled', () => {
       const setSpy = jest.fn();
-      Object.assign(chartComponent, 'chartWrapper', { get: () => chartWrapper, set: setSpy });
+      Object.defineProperty(chartComponent, 'chartWrapper', {
+        configurable: true,
+        get: () => chartWrapper,
+        set: setSpy
+      });
 
       editorRefMock.afterClosed.mockReturnValue(of(null));
 

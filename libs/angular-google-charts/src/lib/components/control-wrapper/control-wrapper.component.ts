@@ -1,13 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   HostBinding,
-  Input,
   OnChanges,
   OnInit,
-  Output,
-  SimpleChanges
+  SimpleChanges,
+  input,
+  output,
+  inject
 } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 
@@ -26,11 +26,12 @@ import { ChartBase } from '../chart-base/chart-base.component';
   standalone: true
 })
 export class ControlWrapperComponent implements OnInit, OnChanges {
+  private loaderService = inject(ScriptLoaderService);
+
   /**
    * Charts controlled by this control wrapper. Can be a single chart or an array of charts.
    */
-  @Input()
-  public for!: ChartBase | ChartBase[];
+  public readonly for = input.required<ChartBase | ChartBase[]>();
 
   /**
    * The class name of the control.
@@ -42,8 +43,7 @@ export class ControlWrapperComponent implements OnInit, OnChanges {
    * <control-wrapper type="CategoryFilter"></control-wrapper>
    * ```
    */
-  @Input()
-  public type!: FilterType;
+  public readonly type = input.required<FilterType>();
 
   /**
    * An object describing the options for the control.
@@ -55,8 +55,7 @@ export class ControlWrapperComponent implements OnInit, OnChanges {
    * <control-wrapper [options]="{'filterColumnLabel': 'Age', 'minValue': 10, 'maxValue': 80}"></control-wrapper>
    * ```
    */
-  @Input()
-  public options?: object;
+  public readonly options = input<object>();
 
   /**
    * An object describing the state of the control.
@@ -72,14 +71,12 @@ export class ControlWrapperComponent implements OnInit, OnChanges {
    * <control-wrapper [state]="{'lowValue': 20, 'highValue': 50}"></control-wrapper>
    * ```
    */
-  @Input()
-  public state?: object;
+  public readonly state = input<object>();
 
   /**
    * Emits when an error occurs when attempting to render the control.
    */
-  @Output()
-  public error = new EventEmitter<ChartErrorEvent>();
+  public readonly error = output<ChartErrorEvent>();
 
   /**
    * The control is ready to accept user interaction and for external method calls.
@@ -87,8 +84,7 @@ export class ControlWrapperComponent implements OnInit, OnChanges {
    * Alternatively, you can listen for a ready event on the dashboard holding the control
    * and call control methods only after the event was fired.
    */
-  @Output()
-  public ready = new EventEmitter<ChartReadyEvent>();
+  public readonly ready = output<ChartReadyEvent>();
 
   /**
    * Emits when the user interacts with the control, affecting its state.
@@ -96,8 +92,7 @@ export class ControlWrapperComponent implements OnInit, OnChanges {
    *
    * To retrieve an updated control state after the event fired, call `ControlWrapper.getState()`.
    */
-  @Output()
-  public stateChange = new EventEmitter<unknown>();
+  public readonly stateChange = output<unknown>();
 
   /**
    * A generated id assigned to this components DOM element.
@@ -108,7 +103,10 @@ export class ControlWrapperComponent implements OnInit, OnChanges {
   private _controlWrapper?: google.visualization.ControlWrapper;
   private wrapperReadySubject = new ReplaySubject<google.visualization.ControlWrapper>(1);
 
-  constructor(private loaderService: ScriptLoaderService) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   /**
    * Emits after the `ControlWrapper` was created.
@@ -137,24 +135,24 @@ export class ControlWrapperComponent implements OnInit, OnChanges {
     }
 
     if (changes['type']) {
-      this._controlWrapper.setControlType(this.type);
+      this._controlWrapper.setControlType(this.type());
     }
 
     if (changes['options']) {
-      this._controlWrapper.setOptions(this.options || {});
+      this._controlWrapper.setOptions(this.options() || {});
     }
 
     if (changes['state']) {
-      this._controlWrapper.setState(this.state || {});
+      this._controlWrapper.setState(this.state() || {});
     }
   }
 
   private createControlWrapper() {
     this._controlWrapper = new google.visualization.ControlWrapper({
       containerId: this.id,
-      controlType: this.type,
-      state: this.state,
-      options: this.options
+      controlType: this.type(),
+      state: this.state(),
+      options: this.options()
     });
 
     this.addEventListeners();

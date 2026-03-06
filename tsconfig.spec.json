@@ -1,0 +1,3 @@
+{
+  "extends": "./libs/angular-google-charts/tsconfig.spec.json"
+}

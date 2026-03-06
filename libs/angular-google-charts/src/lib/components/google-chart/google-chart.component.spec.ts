@@ -4,7 +4,7 @@ import { EMPTY, of } from 'rxjs';
 
 import { ScriptLoaderService } from '../../services/script-loader.service';
 import { ChartType } from '../../types/chart-type';
-import { ChartReadyEvent } from '../../types/events';
+import { ChartErrorEvent, ChartReadyEvent, ChartSelectionChangedEvent } from '../../types/events';
 
 import { GoogleChartComponent } from './google-chart.component';
 
@@ -33,13 +33,14 @@ describe('GoogleChartComponent', () => {
   let fixture: ComponentFixture<GoogleChartComponent>;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     visualizationMock.ChartWrapper.mockReturnValue(chartWrapperMock);
     globalThis.google = { visualization: visualizationMock } as any;
   });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [GoogleChartComponent],
+      imports: [GoogleChartComponent],
       providers: [ScriptLoaderService]
     }).compileComponents();
   });
@@ -52,6 +53,8 @@ describe('GoogleChartComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(GoogleChartComponent);
     component = fixture.componentInstance;
+    setInput('type', ChartType.BarChart);
+    setInput('data', []);
     // No change detection here, we want to invoke the
     // lifecycle methods in the unit tests
   });
@@ -115,10 +118,10 @@ describe('GoogleChartComponent', () => {
         ['First Row', 10],
         ['Second Row', 11]
       ];
-      component.data = data;
+      setInput('data', data);
 
       const columns = ['Some data', 'Some values'];
-      component.columns = columns;
+      setInput('columns', columns);
 
       component.ngOnInit();
 
@@ -133,7 +136,7 @@ describe('GoogleChartComponent', () => {
         ['First Row', 10],
         ['Second Row', 11]
       ];
-      component.data = data;
+      setInput('data', data);
 
       component.ngOnInit();
 
@@ -151,16 +154,16 @@ describe('GoogleChartComponent', () => {
         ['First Row', 10],
         ['Second Row', 11]
       ];
-      component.data = data;
+      setInput('data', data);
 
       const columns = ['Some data', 'Some values'];
-      component.columns = columns;
+      setInput('columns', columns);
 
       const options = { test: 'test' };
-      component.options = options;
+      setInput('options', options);
 
       const chartType = ChartType.BarChart;
-      component.type = chartType;
+      setInput('type', chartType);
 
       component.ngOnInit();
 
@@ -183,25 +186,25 @@ describe('GoogleChartComponent', () => {
         ['First Row', 10],
         ['Second Row', 11]
       ];
-      component.data = data;
+      setInput('data', data);
 
       const columns = ['Some data', 'Some values'];
-      component.columns = columns;
+      setInput('columns', columns);
 
       const options = { test: 'test' };
-      component.options = options;
+      setInput('options', options);
 
       const title = 'chart';
-      component.title = title;
+      setInput('title', title);
 
       const width = 120;
-      component.width = width;
+      setInput('width', width);
 
       const height = 150;
-      component.height = height;
+      setInput('height', height);
 
       const chartType = ChartType.BarChart;
-      component.type = chartType;
+      setInput('type', chartType);
 
       component.ngOnInit();
 
@@ -218,8 +221,8 @@ describe('GoogleChartComponent', () => {
       service.loadChartPackages.mockReturnValueOnce(of(null));
 
       const formatter = { formatter: { format: jest.fn() }, colIndex: 1 };
-      component.formatters = [formatter];
-      component.data = [];
+      setInput('formatters', [formatter]);
+      setInput('data', []);
 
       const dataTableMock = {};
       visualizationMock.arrayToDataTable.mockReturnValueOnce(dataTableMock);
@@ -286,7 +289,7 @@ describe('GoogleChartComponent', () => {
       service.loadChartPackages.mockReturnValueOnce(of(null));
 
       const chartType = ChartType.Map;
-      component.type = chartType;
+      setInput('type', chartType);
 
       component.ngOnInit();
 
@@ -317,13 +320,13 @@ describe('GoogleChartComponent', () => {
         ['First Row', 10],
         ['Second Row', 11]
       ];
-      component.data = data;
+      setInput('data', data);
 
       const columns = ['Some data', 'Some values'];
-      component.columns = columns;
+      setInput('columns', columns);
 
       const chartType = ChartType.BarChart;
-      component.type = chartType;
+      setInput('type', chartType);
       component.ngOnChanges({
         type: new SimpleChange(null, chartType, true),
         data: new SimpleChange(null, data, true),
@@ -336,7 +339,7 @@ describe('GoogleChartComponent', () => {
     it('should not redraw the chart if nothing changed', () => {
       component.ngOnChanges({});
 
-      expect(chartWrapperMock.draw).not.toBeCalled();
+      expect(chartWrapperMock.draw).not.toHaveBeenCalled();
     });
 
     it('should redraw the chart if `data` changed', () => {
@@ -344,10 +347,10 @@ describe('GoogleChartComponent', () => {
         ['First Row', 10],
         ['Second Row', 11]
       ];
-      component.data = data;
+      setInput('data', data);
 
       const columns = ['Some label', 'Some values'];
-      component.columns = columns;
+      setInput('columns', columns);
 
       const dataTableMock = {};
       visualizationMock.arrayToDataTable.mockReturnValueOnce(dataTableMock);
@@ -365,10 +368,10 @@ describe('GoogleChartComponent', () => {
         ['First Row', 10],
         ['Second Row', 11]
       ];
-      component.data = data;
+      setInput('data', data);
 
       const columns = ['Some label', 'Some values'];
-      component.columns = columns;
+      setInput('columns', columns);
 
       const dataTableMock = {};
       visualizationMock.arrayToDataTable.mockReturnValueOnce(dataTableMock);
@@ -386,10 +389,10 @@ describe('GoogleChartComponent', () => {
         ['First Row', 10],
         ['Second Row', 11]
       ];
-      component.data = data;
+      setInput('data', data);
 
       const columns = ['Some label', 'Some values'];
-      component.columns = columns;
+      setInput('columns', columns);
 
       const dataTableMock = {};
       visualizationMock.arrayToDataTable.mockReturnValueOnce(dataTableMock);
@@ -546,7 +549,7 @@ describe('GoogleChartComponent', () => {
       component.ngOnInit();
 
       const errorSpy = jest.fn();
-      component.error.subscribe((event: ChartReadyEvent) => errorSpy(event));
+      component.error.subscribe((event: ChartErrorEvent) => errorSpy(event));
 
       const errorCallback = visualizationMock.events.addListener.mock.calls[1][2];
 
@@ -563,7 +566,7 @@ describe('GoogleChartComponent', () => {
       chartWrapperMock.getChart.mockReturnValue(chartMock);
 
       const selectSpy = jest.fn();
-      component.select.subscribe((event: ChartReadyEvent) => selectSpy(event));
+      component.select.subscribe((event: ChartSelectionChangedEvent) => selectSpy(event));
 
       component.ngOnInit();
 
@@ -581,32 +584,55 @@ describe('GoogleChartComponent', () => {
     it('should add and remove custom event listeners', () => {
       const chartMock = { draw: jest.fn() };
       chartWrapperMock.getChart.mockReturnValue(chartMock);
+      let handleId = 0;
+      visualizationMock.events.addListener.mockImplementation(() => `handle${++handleId}`);
 
       component.ngOnInit();
 
-      visualizationMock.events.addListener.mockReturnValue('handle1');
       const rollupCallback = () => { };
       let handle = component.addEventListener('rollup', rollupCallback);
-      expect(handle).toBe('handle1');
-      expect(visualizationMock.events.addListener).lastCalledWith(chartMock, 'rollup', rollupCallback);
+      expect(handle).toBe('handle3');
+      expect(visualizationMock.events.addListener).toHaveBeenLastCalledWith(chartMock, 'rollup', rollupCallback);
 
       component.removeEventListener(handle);
-      expect(visualizationMock.events.removeListener).lastCalledWith(handle);
+      expect(visualizationMock.events.removeListener).toHaveBeenLastCalledWith(handle);
 
       handle = component.addEventListener('rollup', rollupCallback);
-      visualizationMock.events.addListener.mockReturnValue('handle2');
       const readyCallback = visualizationMock.events.addListener.mock.calls[0][2];
       readyCallback();
+      const reboundHandle = visualizationMock.events.addListener.mock.results.at(-1)?.value;
 
       component.removeEventListener(handle);
-      expect(visualizationMock.events.removeListener).not.lastCalledWith(handle);
-      expect(visualizationMock.events.removeListener).lastCalledWith('handle2');
+      expect(visualizationMock.events.removeListener).not.toHaveBeenLastCalledWith(handle);
+      expect(visualizationMock.events.removeListener).toHaveBeenLastCalledWith(reboundHandle);
     });
   });
 
-  function changeInput<K extends keyof GoogleChartComponent>(property: K, newValue: GoogleChartComponent[K]) {
-    const oldValue = component[property];
-    component[property] = newValue;
+  type GoogleChartInput =
+    | 'type'
+    | 'data'
+    | 'columns'
+    | 'title'
+    | 'width'
+    | 'height'
+    | 'options'
+    | 'formatters'
+    | 'dynamicResize';
+  function changeInput(property: GoogleChartInput, newValue: unknown) {
+    const oldValue = (component as any)[property]();
+    setInput(property, newValue);
     component.ngOnChanges({ [property]: new SimpleChange(oldValue, newValue, oldValue == null) });
+  }
+
+  function setInput(name: 'type', value: ChartType): void;
+  function setInput(name: 'data', value: unknown[][]): void;
+  function setInput(name: 'columns', value: string[] | undefined): void;
+  function setInput(name: 'title', value: string | undefined): void;
+  function setInput(name: 'width' | 'height', value: number | undefined): void;
+  function setInput(name: 'options', value: object): void;
+  function setInput(name: 'formatters', value: unknown[] | undefined): void;
+  function setInput(name: 'dynamicResize', value: boolean): void;
+  function setInput(name: GoogleChartInput, value: unknown): void {
+    fixture.componentRef.setInput(name, value as any);
   }
 });

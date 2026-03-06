@@ -3,18 +3,17 @@
   <div>
     <google-chart
       [width]="600"
-      [title]="chart.title"
-      [type]="chart.type"
-      [data]="chart.data"
-      [columns]="chart.columns"
-      [options]="chart.options"
+      [title]="chart.title()"
+      [type]="chart.type()"
+      [data]="chart.data()"
+      [columns]="chart.columns()"
+      [options]="chart.options()"
       (ready)="onReady()"
       (select)="onSelect($event)"
       (error)="onError($event)"
       (mouseenter)="onMouseEnter($event)"
       (mouseleave)="onMouseLeave($event)"
-      >
-    </google-chart>
+    />
   </div>
 }
 
@@ -26,8 +25,7 @@
   [data]="changingChart.data"
   [columns]="changingChart.columns"
   [options]="changingChart.options"
-  >
-</google-chart>
+/>
 
 <button (click)="changeChart()">Change Data</button>
 <button (click)="navigateToTest()">Navigate</button>

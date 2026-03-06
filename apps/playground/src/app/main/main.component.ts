@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, viewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   ChartErrorEvent,
@@ -12,10 +12,11 @@ import {
   selector: 'app-main',
   templateUrl: './main.component.html',
   styles: [':host > *:not(h1) { display: inline-block !important; }'],
-  standalone: true,
   imports: [GoogleChartComponent]
 })
 export class MainComponent implements OnInit {
+  private router = inject(Router);
+
   public charts: {
     title: string;
     type: ChartType;
@@ -43,10 +44,12 @@ export class MainComponent implements OnInit {
     }
   };
 
-  @ViewChild('chart', { static: true })
-  public chart!: GoogleChartComponent;
+  public readonly chart = viewChild.required<GoogleChartComponent>('chart');
 
-  constructor(private router: Router) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.charts.push({
       title: 'Pie Chart',
       type: ChartType.PieChart,
@@ -298,7 +301,7 @@ export class MainComponent implements OnInit {
   }
 
   public ngOnInit() {
-    console.log(this.chart);
+    console.log(this.chart());
   }
 
   public changeChart() {

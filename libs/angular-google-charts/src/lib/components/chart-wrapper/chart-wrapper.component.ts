@@ -2,12 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
   OnChanges,
   OnInit,
-  Output,
-  SimpleChanges
+  SimpleChanges,
+  output,
+  input,
+  inject
 } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 
@@ -16,15 +16,18 @@ import { ChartErrorEvent, ChartReadyEvent, ChartSelectionChangedEvent } from '..
 import { ChartBase } from '../chart-base/chart-base.component';
 
 @Component({
-    selector: 'chart-wrapper',
-    template: '',
-    styles: [':host { width: fit-content; display: block; }'],
-    host: { class: 'chart-wrapper' },
-    exportAs: 'chartWrapper',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true
+  selector: 'chart-wrapper',
+  template: '',
+  styles: [':host { width: fit-content; display: block; }'],
+  host: { class: 'chart-wrapper' },
+  exportAs: 'chartWrapper',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true
 })
 export class ChartWrapperComponent implements ChartBase, OnChanges, OnInit {
+  private element = inject(ElementRef);
+  private scriptLoaderService = inject(ScriptLoaderService);
+
   /**
    * Either a JSON object defining the chart, or a serialized string version of that object.
    * The format of this object is shown in the
@@ -33,23 +36,22 @@ export class ChartWrapperComponent implements ChartBase, OnChanges, OnInit {
    * The `container` and `containerId` will be overwritten by this component to allow
    * rendering the chart into the components' template.
    */
-  @Input()
-  public specs?: google.visualization.ChartSpecs;
+  public readonly specs = input<google.visualization.ChartSpecs>();
 
-  @Output()
-  public error = new EventEmitter<ChartErrorEvent>();
+  public readonly error = output<ChartErrorEvent>();
 
-  @Output()
-  public ready = new EventEmitter<ChartReadyEvent>();
+  public readonly ready = output<ChartReadyEvent>();
 
-  @Output()
-  public select = new EventEmitter<ChartSelectionChangedEvent>();
+  public readonly select = output<ChartSelectionChangedEvent>();
 
   private wrapper: google.visualization.ChartWrapper | undefined;
   private wrapperReadySubject = new ReplaySubject<google.visualization.ChartWrapper>(1);
   private initialized = false;
 
-  constructor(private element: ElementRef, private scriptLoaderService: ScriptLoaderService) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   public get chart(): google.visualization.ChartBase | null {
     return this.chartWrapper.getChart();
@@ -75,11 +77,9 @@ export class ChartWrapperComponent implements ChartBase, OnChanges, OnInit {
   public ngOnInit() {
     // We don't need to load any chart packages, the chart wrapper will handle this else for us
     this.scriptLoaderService.loadChartPackages().subscribe(() => {
-      if (!this.specs) {
-        this.specs = {} as google.visualization.ChartSpecs;
-      }
+      const specsValue = this.specs() ?? ({} as google.visualization.ChartSpecs);
 
-      const { containerId, container, ...specs } = this.specs;
+      const { containerId, container, ...specs } = specsValue;
 
       // Only ever create the wrapper once to allow animations to happen if something changes.
       this.wrapper = new google.visualization.ChartWrapper({
@@ -107,23 +107,20 @@ export class ChartWrapperComponent implements ChartBase, OnChanges, OnInit {
   }
 
   private updateChart() {
-    if (!this.specs) {
-      // When creating the wrapper with empty specs, the google charts library will show an error
-      // If we don't do this, a javascript error will be thrown, which is not as visible to the user
-      this.specs = {} as google.visualization.ChartSpecs;
-    }
+    // When specs are undefined, we update with empty values instead of throwing.
+    const specs = this.specs() ?? ({} as google.visualization.ChartSpecs);
 
     // The typing here are not correct. These methods accept `undefined` as well.
     // That's why we have to cast to `any`
 
-    this.wrapper!.setChartType(this.specs.chartType);
-    this.wrapper!.setDataTable(this.specs.dataTable as any);
-    this.wrapper!.setDataSourceUrl(this.specs.dataSourceUrl as any);
-    this.wrapper!.setDataSourceUrl(this.specs.dataSourceUrl as any);
-    this.wrapper!.setQuery(this.specs.query as any);
-    this.wrapper!.setOptions(this.specs.options as any);
-    this.wrapper!.setRefreshInterval(this.specs.refreshInterval as any);
-    this.wrapper!.setView(this.specs.view);
+    this.wrapper!.setChartType(specs.chartType);
+    this.wrapper!.setDataTable(specs.dataTable as any);
+    this.wrapper!.setDataSourceUrl(specs.dataSourceUrl as any);
+    this.wrapper!.setDataSourceUrl(specs.dataSourceUrl as any);
+    this.wrapper!.setQuery(specs.query as any);
+    this.wrapper!.setOptions(specs.options as any);
+    this.wrapper!.setRefreshInterval(specs.refreshInterval as any);
+    this.wrapper!.setView(specs.view);
   }
 
   private drawChart() {

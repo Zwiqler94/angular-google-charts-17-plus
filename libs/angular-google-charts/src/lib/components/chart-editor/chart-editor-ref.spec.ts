@@ -18,6 +18,8 @@ describe('ChartEditorRef', () => {
   let editor: ChartEditorRef;
 
   beforeEach(() => {
+    visualizationMock.events.addOneTimeListener.mockReset();
+    visualizationMock.events.removeAllListeners.mockReset();
     globalThis.google = { visualization: visualizationMock } as any;
     editor = new ChartEditorRef(editorMock);
   });
@@ -37,7 +39,7 @@ describe('ChartEditorRef', () => {
 
   describe('afterClosed', () => {
     it('should emit update wrapper if dialog was saved', () => {
-      const okCallback = visualizationMock.events.addOneTimeListener.mock.calls[0][2];
+      const okCallback = getOneTimeCallback('ok');
 
       const editResult = { draw: jest.fn() };
       editorMock.getChartWrapper.mockReturnValueOnce(editResult as any);
@@ -52,7 +54,7 @@ describe('ChartEditorRef', () => {
     });
 
     it('should emit `null` if dialog was cancelled', () => {
-      const cancelCallback = visualizationMock.events.addOneTimeListener.mock.calls[1][2];
+      const cancelCallback = getOneTimeCallback('cancel');
 
       const closedSpy = jest.fn();
       editor.afterClosed().subscribe(result => closedSpy(result));
@@ -71,4 +73,12 @@ describe('ChartEditorRef', () => {
       expect(editorMock.closeDialog).toHaveBeenCalled();
     });
   });
+
+  function getOneTimeCallback(eventName: 'ok' | 'cancel'): Function {
+    const callback = visualizationMock.events.addOneTimeListener.mock.calls.find(([, name]) => name === eventName)?.[2];
+    if (!callback) {
+      throw new Error(`Did not find callback for "${eventName}" event.`);
+    }
+    return callback;
+  }
 });

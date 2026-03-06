@@ -9,16 +9,15 @@
         [type]="filterType"
         [state]="{ lowValue: 3, highValue: 8 }"
         [options]="{ filterColumnLabel: 'Donuts eaten', minValue: 1, maxValue: 10 }"
-      ></control-wrapper>
-      <google-chart #myChart [type]="PieChart" [width]="300" [height]="300" [options]="{ pieSliceText: 'value' }">
-      </google-chart>
+      />
+      <google-chart #myChart [type]="PieChart" [width]="300" [height]="300" [options]="{ pieSliceText: 'value' }" />
     </dashboard>
-    <chart-editor></chart-editor>
+    <chart-editor />
     <button (click)="edit(myChart)">Edit</button>
-    <chart-wrapper [specs]="chartWrapperSpecs"></chart-wrapper>
+    <chart-wrapper [specs]="chartWrapperSpecs" />
     <div>
-      <google-chart #editable [type]="BarChart" [data]="chart.data" [columns]="chart.columnNames"></google-chart>
-      <chart-editor></chart-editor>
+      <google-chart #editable [type]="BarChart" [data]="chart.data" [columns]="chart.columnNames" />
+      <chart-editor />
       <button (click)="edit(editable)">Edit</button>
     </div>
   </div>
@@ -32,5 +31,4 @@
   [columns]="chart.columnNames"
   [options]="chart.options"
   [dynamicResize]="true"
-  >
-</google-chart>
+/>

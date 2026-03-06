@@ -1,10 +1,11 @@
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, OutputEmitterRef } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { ChartErrorEvent, ChartReadyEvent, ChartSelectionChangedEvent } from '../../types/events';
 
 export type Column = string | google.visualization.ColumnSpec;
 export type Row = (string | number | Date | null)[];
+type ChartOutput<T> = EventEmitter<T> | OutputEmitterRef<T>;
 
 export interface ChartBase {
   /**
@@ -12,12 +13,12 @@ export interface ChartBase {
    *
    * Emits *after* the chart was drawn for the first time every time the chart gets redrawn.
    */
-  ready: EventEmitter<ChartReadyEvent>;
+  ready: ChartOutput<ChartReadyEvent>;
 
   /**
    * Emits when an error occurs when attempting to render the chart.
    */
-  error: EventEmitter<ChartErrorEvent>;
+  error: ChartOutput<ChartErrorEvent>;
 
   /**
    * Emits when the user clicks a bar or legend.
@@ -26,7 +27,7 @@ export interface ChartBase {
    * in the data table is selected; when a legend is selected,
    * the corresponding column in the data table is selected.
    */
-  select: EventEmitter<ChartSelectionChangedEvent>;
+  select: ChartOutput<ChartSelectionChangedEvent>;
 
   /**
    * The drawn chart or `null`.

@@ -1,10 +1,12 @@
+const { createCjsPreset } = require('jest-preset-angular/presets/index.js');
+
 module.exports = {
-  preset: 'jest-preset-angular',
-  setupFilesAfterEnv: ['<rootDir>/src/setup-tests.ts'],
-  globalSetup: 'jest-preset-angular/global-setup',
+  ...createCjsPreset(),
+  roots: ['<rootDir>/libs/angular-google-charts/src'],
   resetMocks: true,
   globals: {
     'ts-jest': {
+      tsconfig: '<rootDir>/libs/angular-google-charts/tsconfig.spec.json',
       diagnostics: {
         ignoreCodes: [151001]
       }

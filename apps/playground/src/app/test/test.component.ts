@@ -1,5 +1,5 @@
 import { AsyncPipe, Location } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, viewChild, inject } from '@angular/core';
 import {
   ChartBase,
   ChartEditorComponent,
@@ -16,10 +16,12 @@ import { map, share } from 'rxjs/operators';
   selector: 'app-test',
   templateUrl: './test.component.html',
   styles: ['.inline > * { display: inline-block; vertical-align: top; }'],
-  standalone: true,
   imports: [GoogleChartsModule, AsyncPipe]
 })
 export class TestComponent {
+  private location = inject(Location);
+  private scriptLoaderService = inject(ScriptLoaderService);
+
   public chart = {
     title: 'Test Chart',
     type: ChartType.BarChart,
@@ -72,18 +74,17 @@ export class TestComponent {
     ])
   );
 
-  @ViewChild(ChartEditorComponent)
-  public readonly editor!: ChartEditorComponent;
+  public readonly editor = viewChild.required(ChartEditorComponent);
   BarChart: ChartType = ChartType.BarChart;
   PieChart: ChartType = ChartType.PieChart;
 
-  constructor(
-    private location: Location,
-    private scriptLoaderService: ScriptLoaderService
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   public edit(chart: ChartBase) {
-    this.editor
+    this.editor()
       .editChart(chart)
       .afterClosed()
       .subscribe(result => {

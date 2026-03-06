@@ -2,14 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
-  Optional,
-  Output,
-  SimpleChanges
+  SimpleChanges,
+  input,
+  output,
+  inject
 } from '@angular/core';
 import { fromEvent, Observable, ReplaySubject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -30,28 +29,31 @@ import { ChartBase, Column, Row } from '../chart-base/chart-base.component';
 import { DashboardComponent } from '../dashboard/dashboard.component';
 
 @Component({
-    selector: 'google-chart',
-    template: '',
-    styles: [':host { width: fit-content; display: block; }'],
-    host: { class: 'google-chart' },
-    exportAs: 'googleChart',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true
+  selector: 'google-chart',
+  template: '',
+  styles: [':host { width: fit-content; display: block; }'],
+  host: { class: 'google-chart' },
+  exportAs: 'googleChart',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true
 })
 export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDestroy {
+  private element = inject(ElementRef);
+  private scriptLoaderService = inject(ScriptLoaderService);
+  private dataTableService = inject(DataTableService);
+  private dashboard = inject(DashboardComponent, { optional: true });
+
   /**
    * The type of the chart to create.
    */
-  @Input()
-  public type!: ChartType;
+  public readonly type = input.required<ChartType>();
 
   /**
    * Data used to initialize the table.
    *
    * This must also contain all roles that are set in the `columns` property.
    */
-  @Input()
-  public data!: Row[];
+  public readonly data = input.required<Row[]>();
 
   /**
    * The columns the `data` consists of.
@@ -59,39 +61,34 @@ export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDes
    *
    * If {@link https://developers.google.com/chart/interactive/docs/roles roles} should be applied, they must be included in this array as well.
    */
-  @Input()
-  public columns?: Column[];
+  public readonly columns = input<Column[]>();
 
   /**
    * A convenience property used to set the title of the chart.
    *
    * This can also be set using `options.title`, which, if existant, will overwrite this value.
    */
-  @Input()
-  public title?: string;
+  public readonly title = input<string>();
 
   /**
    * A convenience property used to set the width of the chart in pixels.
    *
    * This can also be set using `options.width`, which, if existant, will overwrite this value.
    */
-  @Input()
-  public width?: number;
+  public readonly width = input<number>();
 
   /**
    * A convenience property used to set the height of the chart in pixels.
    *
    * This can also be set using `options.height`, which, if existant, will overwrite this value.
    */
-  @Input()
-  public height?: number;
+  public readonly height = input<number>();
 
   /**
    * The chart-specific options. All options listen in the Google Charts documentation applying
    * to the chart type specified can be used here.
    */
-  @Input()
-  public options: object = {};
+  public readonly options = input<object>({});
 
   /**
    * Used to change the displayed value of the specified column in all rows.
@@ -99,8 +96,7 @@ export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDes
    * Each array element must consist of an instance of a [`formatter`](https://developers.google.com/chart/interactive/docs/reference#formatters)
    * and the index of the column you want the formatter to get applied to.
    */
-  @Input()
-  public formatters?: Formatter[];
+  public readonly formatters = input<Formatter[]>();
 
   /**
    * If this is set to `true`, the chart will be redrawn if the browser window is resized.
@@ -109,23 +105,17 @@ export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDes
    *
    * Note that this can impact performance.
    */
-  @Input()
-  public dynamicResize = false;
+  public readonly dynamicResize = input(false);
 
-  @Output()
-  public ready = new EventEmitter<ChartReadyEvent>();
+  public readonly ready = output<ChartReadyEvent>();
 
-  @Output()
-  public error = new EventEmitter<ChartErrorEvent>();
+  public readonly error = output<ChartErrorEvent>();
 
-  @Output()
-  public select = new EventEmitter<ChartSelectionChangedEvent>();
+  public readonly select = output<ChartSelectionChangedEvent>();
 
-  @Output()
-  public mouseover = new EventEmitter<ChartMouseOverEvent>();
+  public readonly mouseover = output<ChartMouseOverEvent>();
 
-  @Output()
-  public mouseleave = new EventEmitter<ChartMouseLeaveEvent>();
+  public readonly mouseleave = output<ChartMouseLeaveEvent>();
 
   private resizeSubscription?: Subscription;
 
@@ -135,12 +125,10 @@ export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDes
   private initialized = false;
   private eventListeners = new Map<any, { eventName: string; callback: Function; handle: any }>();
 
-  constructor(
-    private element: ElementRef,
-    private scriptLoaderService: ScriptLoaderService,
-    private dataTableService: DataTableService,
-    @Optional() private dashboard?: DashboardComponent
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   public get chart(): google.visualization.ChartBase | null {
     return this.chartWrapper.getChart();
@@ -165,13 +153,13 @@ export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDes
 
   public ngOnInit() {
     // We don't need to load any chart packages, the chart wrapper will handle this for us
-    this.scriptLoaderService.loadChartPackages(getPackageForChart(this.type)).subscribe(() => {
-      this.dataTable = this.dataTableService.create(this.data, this.columns, this.formatters);
+    this.scriptLoaderService.loadChartPackages(getPackageForChart(this.type())).subscribe(() => {
+      this.dataTable = this.dataTableService.create(this.data(), this.columns(), this.formatters());
 
       // Only ever create the wrapper once to allow animations to happen when something changes.
       this.wrapper = new google.visualization.ChartWrapper({
         container: this.element.nativeElement,
-        chartType: this.type,
+        chartType: this.type(),
         dataTable: this.dataTable,
         options: this.mergeOptions()
       });
@@ -193,13 +181,13 @@ export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDes
     if (this.initialized) {
       let shouldRedraw = false;
       if (changes['data'] || changes['columns'] || changes['formatters']) {
-        this.dataTable = this.dataTableService.create(this.data, this.columns, this.formatters);
+        this.dataTable = this.dataTableService.create(this.data(), this.columns(), this.formatters());
         this.wrapper!.setDataTable(this.dataTable!);
         shouldRedraw = true;
       }
 
       if (changes['type']) {
-        this.wrapper!.setChartType(this.type);
+        this.wrapper!.setChartType(this.type());
         shouldRedraw = true;
       }
 
@@ -242,7 +230,7 @@ export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDes
   private updateResizeListener() {
     this.unsubscribeToResizeIfSubscribed();
 
-    if (this.dynamicResize) {
+    if (this.dynamicResize()) {
       this.resizeSubscription = fromEvent(window, 'resize', { passive: true })
         .pipe(debounceTime(100))
         .subscribe(() => {
@@ -262,10 +250,10 @@ export class GoogleChartComponent implements ChartBase, OnInit, OnChanges, OnDes
 
   private mergeOptions(): object {
     return {
-      title: this.title,
-      width: this.width,
-      height: this.height,
-      ...this.options
+      title: this.title(),
+      width: this.width(),
+      height: this.height(),
+      ...this.options()
     };
   }
 

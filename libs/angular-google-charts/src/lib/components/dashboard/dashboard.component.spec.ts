@@ -22,9 +22,13 @@ describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [DashboardComponent],
+      imports: [DashboardComponent],
       providers: [ScriptLoaderService, DataTableService]
     }).compileComponents();
   });
@@ -32,6 +36,7 @@ describe('DashboardComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
+    setInput('data', []);
     // No change detection here, we want to invoke the
     // lifecycle methods in the unit tests
   });
@@ -57,15 +62,15 @@ describe('DashboardComponent', () => {
       globalThis.google = { visualization: visualizationMock } as any;
 
       const columns = ['test', 'test2'];
-      component.columns = columns;
+      setInput('columns', columns);
 
       const data = [
         ['row 1', 10],
         ['row 2', 12]
       ];
-      component.data = data;
+      setInput('data', data);
 
-      component['controlWrappers'] = [] as any;
+      (component as any)['controlWrappers'] = () => [];
 
       component.ngOnInit();
 
@@ -81,9 +86,9 @@ describe('DashboardComponent', () => {
         ['row 1', 10],
         ['row 2', 12]
       ];
-      component.data = data;
+      setInput('data', data);
 
-      component['controlWrappers'] = [] as any;
+      (component as any)['controlWrappers'] = () => [];
 
       component.ngOnInit();
 
@@ -101,22 +106,22 @@ describe('DashboardComponent', () => {
 
       const chartOne = { wrapperReady$: new Subject<void>() };
       const chartTwo = { wrapperReady$: new Subject<void>() };
-      const controlOne = { wrapperReady$: new Subject<void>(), for: chartOne };
-      const controlTwo = { wrapperReady$: new Subject<void>(), for: [chartOne, chartTwo] };
+      const controlOne = { wrapperReady$: new Subject<void>(), for: () => chartOne };
+      const controlTwo = { wrapperReady$: new Subject<void>(), for: () => [chartOne, chartTwo] };
 
-      component['controlWrappers'] = [controlOne, controlTwo] as any;
+      (component as any)['controlWrappers'] = () => [controlOne, controlTwo];
 
       component.ngOnInit();
 
       expect(visualizationMock.Dashboard).not.toHaveBeenCalled();
 
-      controlOne.wrapperReady$.next();
-      controlTwo.wrapperReady$.next();
+      controlOne.wrapperReady$.next(void 0);
+      controlTwo.wrapperReady$.next(void 0);
       expect(visualizationMock.Dashboard).not.toHaveBeenCalled();
 
-      chartOne.wrapperReady$.next();
+      chartOne.wrapperReady$.next(void 0);
       expect(visualizationMock.Dashboard).not.toHaveBeenCalled();
-      chartTwo.wrapperReady$.next();
+      chartTwo.wrapperReady$.next(void 0);
 
       expect(visualizationMock.Dashboard).toHaveBeenCalled();
     });
@@ -132,10 +137,10 @@ describe('DashboardComponent', () => {
 
       const chartOne = { wrapperReady$: of(null), chartWrapper: {} };
       const chartTwo = { wrapperReady$: of(null), chartWrapper: {} };
-      const controlOne = { wrapperReady$: of(null), for: chartOne, controlWrapper: {} };
-      const controlTwo = { wrapperReady$: of(null), for: [chartOne, chartTwo], controlWrapper: {} };
+      const controlOne = { wrapperReady$: of(null), for: () => chartOne, controlWrapper: {} };
+      const controlTwo = { wrapperReady$: of(null), for: () => [chartOne, chartTwo], controlWrapper: {} };
 
-      component['controlWrappers'] = [controlOne, controlTwo] as any;
+      (component as any)['controlWrappers'] = () => [controlOne, controlTwo];
 
       component.ngOnInit();
 
@@ -160,10 +165,10 @@ describe('DashboardComponent', () => {
 
       // At least one control wrapper is needed to start the drawing
       const chart = { wrapperReady$: of(null), chartWrapper: {} };
-      const control = { wrapperReady$: of(null), for: chart, controlWrapper: {} };
-      component['controlWrappers'] = [control] as any;
+      const control = { wrapperReady$: of(null), for: () => chart, controlWrapper: {} };
+      (component as any)['controlWrappers'] = () => [control];
 
-      component.data = [];
+      setInput('data', []);
 
       component.ngOnInit();
 
@@ -177,8 +182,8 @@ describe('DashboardComponent', () => {
       service.loadChartPackages.mockReturnValueOnce(of(null));
 
       const formatter = { formatter: { format: jest.fn() }, colIndex: 1 };
-      component.formatters = [formatter];
-      component.data = [];
+      setInput('formatters', [formatter]);
+      setInput('data', []);
 
       const dataTableMock = {};
       visualizationMock.arrayToDataTable.mockReturnValueOnce(dataTableMock);
@@ -202,10 +207,10 @@ describe('DashboardComponent', () => {
 
       // At least one control wrapper is needed to start the drawing
       const chart = { wrapperReady$: of(null), chartWrapper: {} };
-      const control = { wrapperReady$: of(null), for: chart, controlWrapper: {} };
-      component['controlWrappers'] = [control] as any;
+      const control = { wrapperReady$: of(null), for: () => chart, controlWrapper: {} };
+      (component as any)['controlWrappers'] = () => [control];
 
-      component.data = [];
+      setInput('data', []);
 
       component.ngOnInit();
 
@@ -214,9 +219,10 @@ describe('DashboardComponent', () => {
   });
 
   describe('ngOnChanges', () => {
-    function changeInput<K extends keyof DashboardComponent>(property: K, newValue: DashboardComponent[K]) {
-      const oldValue = component[property];
-      component[property] = newValue;
+    type DashboardInput = 'data' | 'columns' | 'formatters';
+    function changeInput(property: DashboardInput, newValue: unknown) {
+      const oldValue = (component as any)[property]();
+      setInput(property, newValue);
       component.ngOnChanges({ [property]: new SimpleChange(oldValue, newValue, oldValue == null) });
     }
 
@@ -245,7 +251,7 @@ describe('DashboardComponent', () => {
 
       globalThis.google = { visualization: visualizationMock } as any;
 
-      component.data = [];
+      setInput('data', []);
 
       const columns = ['test'];
       changeInput('columns', columns);
@@ -265,10 +271,10 @@ describe('DashboardComponent', () => {
         ['First Row', 10],
         ['Second Row', 11]
       ];
-      component.data = data;
+      setInput('data', data);
 
       const columns = ['Some label', 'Some values'];
-      component.columns = columns;
+      setInput('columns', columns);
 
       const dataTableMock = {};
       visualizationMock.arrayToDataTable.mockReturnValueOnce(dataTableMock);
@@ -288,8 +294,8 @@ describe('DashboardComponent', () => {
 
       globalThis.google = { visualization: visualizationMock } as any;
 
-      component.data = [['row 1', 12]];
-      component.columns = ['test'];
+      setInput('data', [['row 1', 12]]);
+      setInput('columns', ['test']);
 
       component.ngOnChanges({});
 
@@ -297,4 +303,11 @@ describe('DashboardComponent', () => {
       expect(dashboardMock.draw).not.toHaveBeenCalled();
     });
   });
+
+  function setInput(name: 'data', value: unknown[][]): void;
+  function setInput(name: 'columns', value: string[] | undefined): void;
+  function setInput(name: 'formatters', value: unknown[] | undefined): void;
+  function setInput(name: 'data' | 'columns' | 'formatters', value: unknown): void {
+    fixture.componentRef.setInput(name, value as any);
+  }
 });

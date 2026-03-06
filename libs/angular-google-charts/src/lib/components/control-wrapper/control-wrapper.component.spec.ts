@@ -22,9 +22,13 @@ describe('ControlWrapperComponent', () => {
   let component: ControlWrapperComponent;
   let fixture: ComponentFixture<ControlWrapperComponent>;
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ControlWrapperComponent],
+      imports: [ControlWrapperComponent],
       providers: [ScriptLoaderService]
     }).compileComponents();
   });
@@ -32,6 +36,7 @@ describe('ControlWrapperComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ControlWrapperComponent);
     component = fixture.componentInstance;
+    setInput('type', FilterType.Category);
     // No change detection here, we want to invoke the
     // lifecycle methods in the unit tests
   });
@@ -63,11 +68,10 @@ describe('ControlWrapperComponent', () => {
         options: { key: 'value' }
       };
 
-      // @ts-ignore
-      component.id = options.containerId;
-      component.type = options.controlType;
-      component.state = options.state;
-      component.options = options.options;
+      (component as any).id = options.containerId;
+      setInput('type', options.controlType);
+      setInput('state', options.state);
+      setInput('options', options.options);
 
       component.ngOnInit();
 
@@ -128,9 +132,10 @@ describe('ControlWrapperComponent', () => {
   });
 
   describe('ngOnChanges', () => {
-    function changeInput<K extends keyof ControlWrapperComponent>(property: K, newValue: ControlWrapperComponent[K]) {
-      const oldValue = component[property];
-      component[property] = newValue;
+    type ControlWrapperInput = 'type' | 'options' | 'state';
+    function changeInput(property: ControlWrapperInput, newValue: FilterType | object | undefined) {
+      const oldValue = (component as any)[property]();
+      setInput(property, newValue);
       component.ngOnChanges({ [property]: new SimpleChange(oldValue, newValue, oldValue == null) });
     }
 
@@ -225,4 +230,11 @@ describe('ControlWrapperComponent', () => {
       expect(stateChangeSpy).toHaveBeenCalledWith(eventMock);
     });
   });
+
+  function setInput(name: 'type', value: FilterType): void;
+  function setInput(name: 'options' | 'state', value: object | undefined): void;
+  function setInput(name: 'for', value: any): void;
+  function setInput(name: 'type' | 'options' | 'state' | 'for', value: unknown): void {
+    fixture.componentRef.setInput(name, value as any);
+  }
 });
